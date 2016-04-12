@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="styles.css">
+<style>
+
+</style>
+<head>
+
+	<script src="d3.js"></script>
+	<script>
+
+		var resData = [
+			{ id: 1, name: "Charlie Sheen" },
+			{ id: 2, name: "Johnny Depp" },
+			{ id: 3, name: "Al Pacino" },
+			{ id: 4, name: "Robert De Niro" },
+			{ id: 5, name: "Kevin Spacey" },
+			{ id: 6, name: "Denzel Washington" },
+			{ id: 7, name: "Russell Crowe" },
+			{ id: 8, name: "Brad Pitt" },
+			{ id: 9, name: "Angelina Jolie" },
+			{ id: 10, name: "Leonardo DiCaprio" },
+			{ id: 11, name: "Tom Cruise" },
+			{ id: 12, name: "John Travolta" },
+			{ id: 13, name: "Arnold Schwarzenegger" },
+			{ id: 14, name: "Sylvester Stallone" },
+			{ id: 15, name: "Christian Bale" },
+			{ id: 16, name: "Morgan Freeman" },
+			{ id: 17, name: "Keanu Reeves" },
+			{ id: 18, name: "Nicolas Cage" },
+			{ id: 19, name: "Edward Norton" },
+			{ id: 20, name: "Bruce Willis" },
+			{ id: 21, name: "Tom Hanks" },
+			{ id: 22, name: "Charlize Theron" }
+		];
+		
+		var resList = resData.map(x => x.id);
+
+		var resTasks = resData.filter(x => (x.id % 3) == 0)
+			.map( x => {
+				var t = {
+					resId: x.id,
+					tasks: []
+				};
+				t.tasks.push({
+						start: Math.floor( Math.random() * 5 + 8 ),
+						duration: Math.ceil( Math.random() * 3),
+						priority: "green"
+				});
+				return t;
+			});
+		
+		var redTasks = resData.filter(x => (x.id % 3) == 1)
+			.map( x => {
+				var t = {
+					resId: x.id,
+					tasks: []
+				};
+				t.tasks.push({
+						start: Math.floor( Math.random() * 5 + 8 ),
+						duration: Math.ceil( Math.random() * 3),
+						priority: "red"
+				});
+				return t;
+			});
+		
+		resTasks = resTasks.concat(redTasks);
+		
+		var margin = {top: 20, right: 20, bottom: 30, left: 40},
+			width = 960 - margin.left - margin.right,
+			height = 500 - margin.top - margin.bottom,
+			mWidth = width - 200
+			;
+			
+		var timeRange = d3.range(8, 18)
+			.map(function(x){ return {h: x, mins: [0, 15, 30, 45] }});
+
+		var xWidth = Math.floor(mWidth / (timeRange.length + 1));
+			
+	</script>
+</head>
+
+<body>
+	<div class="chart">		
+		<div class="top">
+			<div class="left"></div>
+			<div class="center"></div>
+		</div>
+		<div class="middle">
+			<!--span class="left-header"></span>
+			<span class="time-slots"></span-->
+		</div>
+	</div>
+<script>
+
+var xh = d3.scale.linear()
+    .domain([8, 18])
+    .range([0, xWidth]);
+
+var chart = d3.select(".chart");
+	
+var topCenter = chart.select(".top .center");
+	
+var headHours = topCenter
+	.selectAll(".hour")
+	.data(timeRange)
+	.enter().append("div")
+		.attr("class", "hour")
+		.style("width", xWidth + "px" );
+
+headHours
+	.append("div")
+	.attr("class", "top");
+	
+headHours
+	.append("div")
+	.attr("class", "bottom");
+
+headHours
+		.append("div")
+			.attr("class", "half");
+
+headHours
+	.append("div")
+	.attr("class", "label")
+	.text(x => x.h);
+	
+var resRows = chart.select(".middle").selectAll(".res-row")
+	.data(resList)
+	.enter().append("div")
+	.attr("class", "res-row");
+	
+var resHeaders = resRows
+	.append("div")
+	.attr("class", "header");
+	
+resHeaders.append("div")	
+	.attr("class", "label")
+	.text(id => resData.find(r => r.id ==  id).name);
+	
+var resTimeSlots = resRows.append("div")
+	.attr("class", "res-time-row")
+	.selectAll(".res-time-slot")	
+		.data(timeRange)
+		.enter().append("div")
+		.attr("class", "res-time-slot")
+		.style("width", xWidth + "px" );
+
+resTimeSlots.append("div")
+	.attr("class", "inner");
+
+var taskResIds = resTasks.map(x => x.resId);
+
+resTasks.forEach( (tr,i) => {
+	var resRow = resRows[0].find(x => x.__data__ == tr.resId);
+	var tasksContainer = d3.select(resRow).select(".res-time-row")
+		.append("div")
+		.attr("class", "task-container");
+	
+	tasksContainer.selectAll("res-task")
+		.data(tr.tasks)
+		.enter().append("div")
+			.attr("class", "res-task")
+			.style("width", x => {
+				console.log(x);
+				var res = x.duration * xWidth + "px";
+				console.log(res);
+				return res;
+			})			
+			.style("left", x => {
+				console.log(x);
+				var res = (x.start -8 ) * xWidth + "px";
+				console.log(res);
+				return res;
+			})		
+			.style("background-color", x => x.priority);
+});
+	
+var i = 9;
+
+</script>
